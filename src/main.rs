@@ -1,16 +1,20 @@
-use axum::{
-    routing::get,
-    Router,
-};
+mod routes;
+mod configuration;
+use axum;
 
 #[tokio::main]
 async fn main() {
-    // build our application with a single route
-    let app = Router::new().route("/", get(|| async { "Hello, World!" }));
+    // initialize routes
+    let router = routes::create_router();
 
-    // run it with hyper on localhost:3000
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
+    // get and print server address
+    let server_config = configuration::get_configuration();
+    let address = format!("0.0.0.0:{}", server_config.port);
+    println!("Starting server at {}", address);
+
+    // listen
+    axum::Server::bind(&address.parse().unwrap())
+        .serve(router.into_make_service())
         .await
         .unwrap();
 }
