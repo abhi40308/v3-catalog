@@ -10,6 +10,9 @@ pub const ROUTENAME: &str = "/query/explain";
 pub async fn handler(
     Json(request): Json<QueryRequest>,
 ) -> Result<Json<ExplainResponse>, ServerError> {
+
+    println!("received query explain request");
+
     let query = sql::build_sql_query(&request);
     let built_query = match query {
     	Ok(q) => q,

@@ -9,6 +9,7 @@ use axum::{
 
 pub const ROUTENAME: &str = "/schema";
 
+// TODO: get mod tables and get_schema to use the same tables
 pub async fn handler() -> Json<models::SchemaResponse> {
 
     println!("received schema request");
@@ -152,16 +153,25 @@ pub async fn handler() -> Json<models::SchemaResponse> {
     // ANCHOR_END: schema_object_type_author
     // ANCHOR: schema_object_types
     let object_types = HashMap::from_iter([
-        ("table".into(), table_type),
-        ("column".into(), column_type),
+        ("tables".into(), table_type),
+        ("columns".into(), column_type),
     ]);
 
+    let database_url_argument: HashMap<String, models::ArgumentInfo> = HashMap::from_iter([(
+        "database_url".into(),
+        models::ArgumentInfo {
+            description: Some("The PG connection URI of the Postgres database that you wish to get entities from".into()),
+            argument_type: models::Type::Named {
+                name: "database_url".into(),
+            },
+        },
+    )]);
 
     let tables_table = models::TableInfo {
         name: "tables".into(),
         description: Some("A collection of Postgres tables".into()),
         table_type: "table".into(),
-        arguments: HashMap::new(),
+        arguments: database_url_argument.clone(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
@@ -178,7 +188,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         name: "columns".into(),
         description: Some("A collection of Postgres columns".into()),
         table_type: "column".into(),
-        arguments: HashMap::new(),
+        arguments: database_url_argument,
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,

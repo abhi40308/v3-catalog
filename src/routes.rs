@@ -14,7 +14,7 @@ pub fn create_router() -> Router {
     Router::new()
         .route(get_healthz::ROUTENAME, get(get_healthz::handler))
         .route(get_capabilities::ROUTENAME, get(get_capabilities::handler))
-        .route(post_query::ROUTENAME, post(post_query::handler))
         .route(get_schema::ROUTENAME, get(get_schema::handler))
         .route(post_query_explain::ROUTENAME, post(post_query_explain::handler))
+        .route(post_query::ROUTENAME, post(post_query::handler))
 }
