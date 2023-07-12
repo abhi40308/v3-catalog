@@ -1,3 +1,5 @@
+> This is a temp repo. This code will likely be moved somewhere else.
+
 # PG Catalog Connector
 
 A custom data connector that accepts PG database URL as an argument and returns the tables and columns outside `information_schema` and `pg_catalog` schema. This data connector is implemented looking at the [NDC specification](https://github.com/hasura/ndc-spec) and the referring to the [ndc-postgres connector](https://github.com/hasura/ndc-postgres).
