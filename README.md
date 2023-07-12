@@ -1,0 +1,5 @@
+1. Start server using `PORT=5000 cargo run`
+2. Make queries:
+	- `curl -d '{ "table": "columns", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {} }, "column_name": { "type": "column", "column": "column_name", "arguments": {} }, "data_type": { "type": "column", "column": "data_type", "arguments": {} } } }, "arguments": { "database_url": {"type": "literal", "value": "postgres://test" } }, "table_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5000/query`
+
+		- `curl -d '{ "table": "tables", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {}}}}, "arguments": { "database_url": {"type": "literal", "value": "" } }, "table_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5000/query`
