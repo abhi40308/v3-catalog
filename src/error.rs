@@ -8,7 +8,7 @@ use serde::Serialize;
 pub enum ServerError {
     Internal(String),
     DatabaseError(String),
-    BadRequest(String)
+    BadRequest(String),
 }
 
 #[derive(Serialize)]

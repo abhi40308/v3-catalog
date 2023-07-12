@@ -1,17 +1,12 @@
 use ndc_client::models;
-use std::{
-    collections::{HashMap},
-};
+use std::collections::HashMap;
 
-use axum::{
-    Json
-};
+use axum::Json;
 
 pub const ROUTENAME: &str = "/schema";
 
 // TODO: get mod tables and get_schema to use the same tables
 pub async fn handler() -> Json<models::SchemaResponse> {
-
     println!("received schema request");
 
     // scalar types
@@ -62,7 +57,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         ),
     ]);
 
-        let column_type = models::ObjectType {
+    let column_type = models::ObjectType {
         description: Some("Postgres column definition".into()),
         fields: HashMap::from_iter([
             (
@@ -70,7 +65,9 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Named { name: "String".into() },
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
                 },
             ),
             (
@@ -88,7 +85,9 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Name of the table column".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Named { name: "String".into() },
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
                 },
             ),
             (
@@ -96,7 +95,9 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Comment of the table column".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Named { name: "String".into() },
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
                 },
             ),
             (
@@ -104,9 +105,10 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Comment of the table column".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Named { name: "table".into() },
+                    r#type: models::Type::Named {
+                        name: "table".into(),
+                    },
                 },
-
             ),
         ]),
     };
@@ -119,7 +121,9 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Named { name: "String".into() },
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
                 },
             ),
             (
@@ -137,7 +141,11 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Nullable { underlying_type: Box::new(models::Type::Named { name: "String".into(), }) } ,
+                    r#type: models::Type::Nullable {
+                        underlying_type: Box::new(models::Type::Named {
+                            name: "String".into(),
+                        }),
+                    },
                 },
             ),
             (
@@ -145,7 +153,11 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
                     arguments: HashMap::new(),
-                    r#type: models::Type::Array { element_type: Box::new(models::Type::Named { name: "column".into(), }) } ,
+                    r#type: models::Type::Array {
+                        element_type: Box::new(models::Type::Named {
+                            name: "column".into(),
+                        }),
+                    },
                 },
             ),
         ]),
@@ -160,7 +172,10 @@ pub async fn handler() -> Json<models::SchemaResponse> {
     let database_url_argument: HashMap<String, models::ArgumentInfo> = HashMap::from_iter([(
         "database_url".into(),
         models::ArgumentInfo {
-            description: Some("The PG connection URI of the Postgres database that you wish to get entities from".into()),
+            description: Some(
+                "The PG connection URI of the Postgres database that you wish to get entities from"
+                    .into(),
+            ),
             argument_type: models::Type::Named {
                 name: "database_url".into(),
             },
@@ -195,14 +210,21 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         foreign_keys: HashMap::from_iter([(
             "ColumnToTable".into(),
             models::ForeignKeyConstraint {
-                column_mapping: HashMap::from_iter([("table_schema".into(), "table_schema".into()), ("table_name".into(), "table_name".into())]),
+                column_mapping: HashMap::from_iter([
+                    ("table_schema".into(), "table_schema".into()),
+                    ("table_name".into(), "table_name".into()),
+                ]),
                 foreign_table: "table".into(),
-            }
+            },
         )]),
         uniqueness_constraints: HashMap::from_iter([(
             "ColumnName".into(),
             models::UniquenessConstraint {
-                unique_columns: vec!["table_schema".into(), "table_name".into(), "column_name".into()],
+                unique_columns: vec![
+                    "table_schema".into(),
+                    "table_name".into(),
+                    "column_name".into(),
+                ],
             },
         )]),
     };

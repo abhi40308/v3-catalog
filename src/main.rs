@@ -1,5 +1,5 @@
-mod routes;
 mod configuration;
+mod routes;
 use axum;
 
 #[tokio::main]

@@ -1,7 +1,5 @@
 use axum::Json;
-use ndc_client::models::{
-    Capabilities, CapabilitiesResponse, QueryCapabilities,
-};
+use ndc_client::models::{Capabilities, CapabilitiesResponse, QueryCapabilities};
 
 pub const ROUTENAME: &str = "/capabilities";
 
