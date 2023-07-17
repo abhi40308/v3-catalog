@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  data-connector-agent:
+    build:
+      context: .
+    restart: always
+    ports:
+      - 5000:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    environment:
+      PORT: 5000
+      DEFAULT_DB_URL: ${DEFAULT_DB_URL}

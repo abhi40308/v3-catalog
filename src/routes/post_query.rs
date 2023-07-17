@@ -8,6 +8,7 @@ use std::collections::HashMap;
 // use sqlx::{types, Row};
 // use cc_postgres::configuration::{Configuration};
 use cc_postgres::{error::ServerError, sql};
+use cc_postgres::configuration;
 
 pub const ROUTENAME: &str = "/query";
 
@@ -33,7 +34,10 @@ async fn resolve_query_request(request: &QueryRequest) -> Result<Json<QueryRespo
             serde_json::Value::String(val) => get_sql_connection_pool(val).await,
             _ => return Err(ServerError::BadRequest("invalid db url".into())),
         },
-        None => return Err(ServerError::BadRequest("no db url provided".into())),
+        None => match configuration::get_default_db_url() {
+            Some(db_url) => get_sql_connection_pool(&db_url).await,
+            None => return Err(ServerError::BadRequest("no db url provided".into())),
+        } 
     }
     .map_err(|err| {
         ServerError::BadRequest(format!(
