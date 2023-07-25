@@ -162,11 +162,102 @@ pub async fn handler() -> Json<models::SchemaResponse> {
             ),
         ]),
     };
+
+    let foreign_key_type = models::ObjectType {
+        description: Some("Postgres foreign keys definition".into()),
+        fields: HashMap::from_iter([
+            (
+                "schema_from".into(),
+                models::ObjectField {
+                    description: Some(
+                        "Name of the schema from which the foreign key exists".into(),
+                    ),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "table_from".into(),
+                models::ObjectField {
+                    description: Some("Name of the table from which the foreign key exists".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "column_mapping".into(),
+                models::ObjectField {
+                    description: Some("Mapping of the columns with the foreign key".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        // TODO: This works as of now, but we should update this type to be something more suited,
+                        // like jsonb
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "schema_to".into(),
+                models::ObjectField {
+                    description: Some("Name of the schema to which the foreign key exists".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "table_to".into(),
+                models::ObjectField {
+                    description: Some("Name of the table to which the foreign key exists".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "fkey_name".into(),
+                models::ObjectField {
+                    description: Some("Name of the foreign key constraint".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "on_update".into(),
+                models::ObjectField {
+                    description: Some("On update clause".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+            (
+                "on_delete".into(),
+                models::ObjectField {
+                    description: Some("On delete clause".into()),
+                    arguments: HashMap::new(),
+                    r#type: models::Type::Named {
+                        name: "String".into(),
+                    },
+                },
+            ),
+        ]),
+    };
     // ANCHOR_END: schema_object_type_author
     // ANCHOR: schema_object_types
     let object_types = HashMap::from_iter([
         ("tables".into(), table_type),
         ("columns".into(), column_type),
+        ("foreign_keys".into(), foreign_key_type),
     ]);
 
     let database_url_argument: HashMap<String, models::ArgumentInfo> = HashMap::from_iter([(
@@ -203,7 +294,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         name: "columns".into(),
         description: Some("A collection of Postgres columns".into()),
         table_type: "column".into(),
-        arguments: database_url_argument,
+        arguments: database_url_argument.clone(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
@@ -229,7 +320,24 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         )]),
     };
 
-    let tables = vec![tables_table, columns_table];
+    let foreign_keys_table = models::TableInfo {
+        name: "foreign_keys".into(),
+        description: Some("A collection of Postgres foreign keys".into()),
+        table_type: "foreign_key".into(),
+        arguments: database_url_argument.clone(),
+        deletable: false,
+        insertable_columns: None,
+        updatable_columns: None,
+        foreign_keys: HashMap::new(),
+        uniqueness_constraints: HashMap::from_iter([(
+            "ForeignKeyName".into(),
+            models::UniquenessConstraint {
+                unique_columns: vec!["fkey_name".into()],
+            },
+        )]),
+    };
+
+    let tables = vec![tables_table, columns_table, foreign_keys_table];
 
     // ANCHOR: schema_commands
     let commands = vec![];

@@ -1,14 +1,21 @@
+mod fkey;
+mod predicate_builder;
+mod utils;
+
 use ndc_client::models::{self, Expression};
 use sqlparser::ast::{
-    BinaryOperator, Function, FunctionArg, FunctionArgExpr, Ident, ObjectName, Query, Select,
-    SelectItem, SetExpr, Statement, TableAlias, TableFactor, TableWithJoins, UnaryOperator, Value,
+    Expr, ObjectName, Query, Select, SelectItem, SetExpr, Statement, TableAlias, TableFactor,
+    TableWithJoins, Value,
 };
-use sqlparser::ast::{Expr, Offset};
 use std::collections::HashMap;
 use std::str::FromStr;
 
 use crate::error::ServerError;
 use crate::tables::SupportedTable;
+
+use fkey::get_fkey_query;
+use predicate_builder::get_predicate_expression;
+use utils::{get_sql_function_expression, get_sql_query, get_sql_quoted_identifier};
 
 pub fn build_sql_query(request: &models::QueryRequest) -> Result<Statement, ServerError> {
     let table = SupportedTable::from_str(&request.table);
@@ -38,7 +45,7 @@ pub fn get_node_subquery(
         None => return Err(ServerError::BadRequest("fields must be present".into())),
     };
     // build the wrapper query
-    let wrapper_subquery = get_sql_query(wrapper_projection, vec![], None, None, None);
+    let wrapper_subquery = get_sql_query(wrapper_projection, vec![], None, None, None, None);
 
     // projection for the node subquery
     let node_projection = vec![SelectItem::ExprWithAlias {
@@ -50,10 +57,13 @@ pub fn get_node_subquery(
                     vec![get_sql_function_expression(
                         "to_json",
                         vec![Expr::Identifier(get_sql_quoted_identifier("_wrapper"))],
+                        None,
                     )],
+                    None,
                 ),
-                get_sql_function_expression("json_build_array", vec![]),
+                get_sql_function_expression("json_build_array", vec![], None),
             ],
+            None,
         ),
         alias: get_sql_quoted_identifier("_node"),
     }];
@@ -104,7 +114,10 @@ fn get_rows_json_subquery(
     query: &models::Query,
     table: &SupportedTable,
 ) -> Result<Box<Query>, ServerError> {
-    let row_subquery = get_rows_query(query, table);
+    let row_subquery = match table {
+        SupportedTable::Columns | SupportedTable::Tables => get_rows_query(query, table),
+        SupportedTable::ForeignKeys {} => get_fkey_query(query, table),
+    };
 
     let rows_json_projection = vec![SelectItem::ExprWithAlias {
         expr: get_sql_function_expression(
@@ -113,16 +126,19 @@ fn get_rows_json_subquery(
                 get_sql_function_expression(
                     "json_agg",
                     vec![if fields.is_empty() {
-                        get_sql_function_expression("json_build_object", vec![])
+                        get_sql_function_expression("json_build_object", vec![], None)
                     } else {
                         get_sql_function_expression(
                             "to_json",
                             vec![Expr::Identifier(get_sql_quoted_identifier("_rows"))],
+                            None,
                         )
                     }],
+                    None,
                 ),
-                get_sql_function_expression("json_build_array", vec![]),
+                get_sql_function_expression("json_build_array", vec![], None),
             ],
+            None,
         ),
         alias: get_sql_quoted_identifier("rows"),
     }];
@@ -147,6 +163,7 @@ fn get_rows_json_subquery(
         None,
         None,
         None,
+        None,
     ))
 }
 
@@ -155,7 +172,6 @@ pub fn get_rows_query(
     table: &SupportedTable,
 ) -> Result<Box<Query>, ServerError> {
     /*Build Predicate*/
-
     // start with a custom predicate to ignore tables from information_schema and pg_catalog
     let mut predicate = Expression::And {
         expressions: vec![
@@ -191,7 +207,7 @@ pub fn get_rows_query(
         None => predicate,
     };
     // get the predicate expression required by the sqlx client
-    let filter_predicate = get_predicate_expression(&predicate);
+    let filter_predicate = get_predicate_expression(&predicate, "_origin");
 
     // from clause
     let rows_from = vec![TableWithJoins {
@@ -243,6 +259,7 @@ pub fn get_rows_query(
                             models::Field::Relationship { .. } => todo!(),
                         },
                     ],
+                    None,
                 ),
                 alias: get_sql_quoted_identifier(alias),
             })
@@ -253,194 +270,8 @@ pub fn get_rows_query(
         rows_projection,
         rows_from,
         Some(filter_predicate),
+        None,
         query.limit,
         query.offset,
     ))
-}
-
-// util function to build an SQL query from constructed parameters
-fn get_sql_query(
-    projection: Vec<SelectItem>,
-    from: Vec<TableWithJoins>,
-    predicate: Option<Expr>,
-    limit: Option<u32>,
-    offset: Option<u32>,
-) -> Box<Query> {
-    Box::new(Query {
-        with: None,
-        body: Box::new(SetExpr::Select(Box::new(Select {
-            selection: predicate,
-            from,
-            projection,
-            lateral_views: vec![],
-            distinct: None,
-            top: None,
-            into: None,
-            group_by: vec![],
-            cluster_by: vec![],
-            distribute_by: vec![],
-            sort_by: vec![],
-            having: None,
-            qualify: None,
-            named_window: vec![],
-        }))),
-        limit: limit.map(|l| Expr::Value(Value::Number(l.to_string(), false))),
-        offset: offset.map(|o| Offset {
-            value: Expr::Value(Value::Number(o.to_string(), false)),
-            rows: sqlparser::ast::OffsetRows::None,
-        }),
-        fetch: None,
-        locks: vec![],
-        order_by: vec![], //todo
-    })
-}
-
-// builds a predicate expression as expected by the sqlx client
-fn get_predicate_expression(expr: &models::Expression) -> Expr {
-    match expr {
-        models::Expression::And { expressions } => expressions
-            .iter()
-            .map(|e| get_predicate_expression(e))
-            .reduce(get_sql_and_expression)
-            .map(|e| match e {
-                Expr::BinaryOp {
-                    op: BinaryOperator::And,
-                    ..
-                } => Expr::Nested(Box::new(e)),
-                _ => e,
-            })
-            .unwrap_or_else(|| Expr::Value(Value::Boolean(true))),
-        models::Expression::Or { expressions } => expressions
-            .iter()
-            .map(|e| get_predicate_expression(e))
-            .reduce(get_sql_or_expr)
-            .map(|e| match e {
-                Expr::BinaryOp {
-                    op: BinaryOperator::Or,
-                    ..
-                } => Expr::Nested(Box::new(e)),
-                _ => e,
-            })
-            .unwrap_or_else(|| Expr::Value(Value::Boolean(false))),
-        models::Expression::Not { expression } => Expr::UnaryOp {
-            op: UnaryOperator::Not,
-            expr: Box::new(get_predicate_expression(expression)),
-        },
-        models::Expression::UnaryComparisonOperator { .. } => todo!(),
-        models::Expression::BinaryComparisonOperator {
-            column,
-            operator,
-            value,
-        } => {
-            // this is silly. Todo: remove redundant boxes from input types.
-            let operator = &**operator;
-            let column = &**column;
-            let value = &**value;
-
-            let left = match column {
-                models::ComparisonTarget::RootTableColumn { name } => {
-                    Expr::CompoundIdentifier(vec![
-                        get_sql_quoted_identifier("_origin"),
-                        get_sql_quoted_identifier(name),
-                    ])
-                }
-                models::ComparisonTarget::Column { name, path } => {
-                    if !path.is_empty() {
-                        todo!("comparison against other tables not supported")
-                    }
-                    Expr::CompoundIdentifier(vec![
-                        get_sql_quoted_identifier("_origin"),
-                        get_sql_quoted_identifier(name),
-                    ])
-                }
-            };
-
-            let right = match value {
-                models::ComparisonValue::Column { .. } => {
-                    todo!("Column comparison not supported")
-                }
-                models::ComparisonValue::Scalar { value } => match value {
-                    serde_json::Value::Number(n) => Expr::Value(Value::Number(n.to_string(), true)),
-                    serde_json::Value::String(s) => {
-                        Expr::Value(Value::SingleQuotedString(s.to_string()))
-                    }
-                    _ => Expr::Value(Value::Placeholder(value.to_string())),
-                },
-                models::ComparisonValue::Variable { .. } => {
-                    todo!("Not sure what variable comparison is")
-                }
-            };
-
-            let operator = match operator {
-                models::BinaryComparisonOperator::Equal => BinaryOperator::Eq,
-                models::BinaryComparisonOperator::Other { name } => {
-                    // todo improve code
-                    if name == &("like".to_string()) {
-                        return get_sql_like_expr(left, right, false);
-                    }
-                    if name == &("nlike".to_string()) {
-                        return get_sql_like_expr(left, right, true);
-                    }
-                    todo!("Only equality is supported");
-                }
-            };
-
-            Expr::BinaryOp {
-                left: Box::new(left),
-                op: operator,
-                right: Box::new(right),
-            }
-        }
-
-        models::Expression::BinaryArrayComparisonOperator { .. } => todo!(),
-        models::Expression::Exists { .. } => todo!(),
-    }
-}
-
-/* Util functions for SQL query building */
-
-// gets a quoted identifier to add in the SQL query
-fn get_sql_quoted_identifier<S: Into<String>>(value: S) -> Ident {
-    Ident::with_quote('"', value)
-}
-
-// self explanatory
-fn get_sql_function_expression(name: &str, args: Vec<Expr>) -> Expr {
-    Expr::Function(Function {
-        name: ObjectName(vec![Ident::new(name)]),
-        args: args
-            .into_iter()
-            .map(|arg| FunctionArg::Unnamed(FunctionArgExpr::Expr(arg)))
-            .collect(),
-        over: None,
-        distinct: false,
-        special: false,
-        order_by: vec![],
-    })
-}
-
-// AND operator expression to be used in the predicate
-pub fn get_sql_and_expression(left: Expr, right: Expr) -> Expr {
-    Expr::BinaryOp {
-        left: Box::new(left),
-        op: BinaryOperator::And,
-        right: Box::new(right),
-    }
-}
-// OR operator expression to be used in the predicate
-pub fn get_sql_or_expr(left: Expr, right: Expr) -> Expr {
-    Expr::BinaryOp {
-        left: Box::new(left),
-        op: BinaryOperator::Or,
-        right: Box::new(right),
-    }
-}
-// LIKE operator expression to be used in the predicate
-pub fn get_sql_like_expr(left: Expr, right: Expr, negated: bool) -> Expr {
-    Expr::Like {
-        negated: negated,
-        expr: Box::new(left),
-        pattern: Box::new(right),
-        escape_char: None,
-    }
 }

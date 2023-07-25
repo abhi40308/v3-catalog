@@ -17,16 +17,19 @@ pub struct ColumnInfo {
 pub enum SupportedTable {
     Tables,
     Columns,
+    ForeignKeys,
 }
 // the underlying table names of these tables in information_schema
 pub const TABLES: &str = "tables";
 pub const COLUMNS: &str = "columns";
+pub const FOREIGN_KEYS: &str = "foreign_keys";
 impl SupportedTable {
     // gets the name of the underlying table from enum
     pub fn get_table_name(&self) -> String {
         match self {
             SupportedTable::Tables => TABLES.to_string(),
             SupportedTable::Columns => COLUMNS.to_string(),
+            SupportedTable::ForeignKeys => FOREIGN_KEYS.to_string(),
         }
     }
 
@@ -70,6 +73,42 @@ impl SupportedTable {
                     },
                 ]
             }
+            SupportedTable::ForeignKeys => {
+                vec![
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "schema_from".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "table_from".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "column_mapping".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "schema_to".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "table_to".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "fkey_name".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "on_update".into(),
+                    },
+                    ColumnInfo {
+                        r#type: "String".into(),
+                        name: "on_delete".into(),
+                    },
+                ]
+            }
         }
     }
 
@@ -87,6 +126,7 @@ impl ToString for SupportedTable {
         match self {
             SupportedTable::Tables => TABLES.into(),
             SupportedTable::Columns => COLUMNS.into(),
+            SupportedTable::ForeignKeys => FOREIGN_KEYS.into(),
         }
     }
 }
@@ -100,6 +140,7 @@ impl FromStr for SupportedTable {
         match s {
             TABLES => Ok(SupportedTable::Tables),
             COLUMNS => Ok(SupportedTable::Columns),
+            FOREIGN_KEYS => Ok(SupportedTable::ForeignKeys),
             _ => Err(ParseSupportedTableErr),
         }
     }
