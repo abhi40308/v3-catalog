@@ -1,5 +1,5 @@
 use ndc_client::models;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use axum::Json;
 
@@ -10,12 +10,12 @@ pub async fn handler() -> Json<models::SchemaResponse> {
     println!("received schema request");
 
     // scalar types
-    let scalar_types = HashMap::from_iter([
+    let scalar_types = BTreeMap::from_iter([
         (
             "String".into(),
             models::ScalarType {
-                aggregate_functions: HashMap::new(),
-                comparison_operators: HashMap::from_iter([(
+                aggregate_functions: BTreeMap::new(),
+                comparison_operators: BTreeMap::from_iter([(
                     "like".into(),
                     models::ComparisonOperatorDefinition {
                         argument_type: models::Type::Named {
@@ -23,13 +23,13 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                         },
                     },
                 )]),
-                update_operators: HashMap::new(),
+                update_operators: BTreeMap::new(),
             },
         ),
         (
             "Int".into(),
             models::ScalarType {
-                aggregate_functions: HashMap::from_iter([
+                aggregate_functions: BTreeMap::from_iter([
                     (
                         "max".into(),
                         models::AggregateFunctionDefinition {
@@ -51,20 +51,20 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                         },
                     ),
                 ]),
-                comparison_operators: HashMap::from_iter([]),
-                update_operators: HashMap::new(),
+                comparison_operators: BTreeMap::from_iter([]),
+                update_operators: BTreeMap::new(),
             },
         ),
     ]);
 
     let column_type = models::ObjectType {
         description: Some("Postgres column definition".into()),
-        fields: HashMap::from_iter([
+        fields: BTreeMap::from_iter([
             (
                 "table_name".into(),
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -74,7 +74,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "table_schema".into(),
                 models::ObjectField {
                     description: Some("Name of the schema of the Postgres table".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -84,7 +84,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "column_name".into(),
                 models::ObjectField {
                     description: Some("Name of the table column".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -94,7 +94,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "comment".into(),
                 models::ObjectField {
                     description: Some("Comment of the table column".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -104,7 +104,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "table".into(),
                 models::ObjectField {
                     description: Some("Comment of the table column".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "table".into(),
                     },
@@ -115,12 +115,12 @@ pub async fn handler() -> Json<models::SchemaResponse> {
 
     let table_type = models::ObjectType {
         description: Some("Postgres table definition".into()),
-        fields: HashMap::from_iter([
+        fields: BTreeMap::from_iter([
             (
                 "table_name".into(),
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -130,7 +130,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "table_schema".into(),
                 models::ObjectField {
                     description: Some("Name of the schema of the Postgres table".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -140,7 +140,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "comment".into(),
                 models::ObjectField {
                     description: Some("Name of the Postgres table".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Nullable {
                         underlying_type: Box::new(models::Type::Named {
                             name: "String".into(),
@@ -152,7 +152,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "columns".into(),
                 models::ObjectField {
                     description: Some("The article's author ID".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Array {
                         element_type: Box::new(models::Type::Named {
                             name: "column".into(),
@@ -165,14 +165,14 @@ pub async fn handler() -> Json<models::SchemaResponse> {
 
     let foreign_key_type = models::ObjectType {
         description: Some("Postgres foreign keys definition".into()),
-        fields: HashMap::from_iter([
+        fields: BTreeMap::from_iter([
             (
                 "schema_from".into(),
                 models::ObjectField {
                     description: Some(
                         "Name of the schema from which the foreign key exists".into(),
                     ),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -182,7 +182,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "table_from".into(),
                 models::ObjectField {
                     description: Some("Name of the table from which the foreign key exists".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -192,7 +192,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "column_mapping".into(),
                 models::ObjectField {
                     description: Some("Mapping of the columns with the foreign key".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         // TODO: This works as of now, but we should update this type to be something more suited,
                         // like jsonb
@@ -204,7 +204,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "schema_to".into(),
                 models::ObjectField {
                     description: Some("Name of the schema to which the foreign key exists".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -214,7 +214,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "table_to".into(),
                 models::ObjectField {
                     description: Some("Name of the table to which the foreign key exists".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -224,7 +224,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "fkey_name".into(),
                 models::ObjectField {
                     description: Some("Name of the foreign key constraint".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -234,7 +234,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "on_update".into(),
                 models::ObjectField {
                     description: Some("On update clause".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -244,7 +244,7 @@ pub async fn handler() -> Json<models::SchemaResponse> {
                 "on_delete".into(),
                 models::ObjectField {
                     description: Some("On delete clause".into()),
-                    arguments: HashMap::new(),
+                    arguments: BTreeMap::new(),
                     r#type: models::Type::Named {
                         name: "String".into(),
                     },
@@ -254,13 +254,13 @@ pub async fn handler() -> Json<models::SchemaResponse> {
     };
     // ANCHOR_END: schema_object_type_author
     // ANCHOR: schema_object_types
-    let object_types = HashMap::from_iter([
-        ("tables".into(), table_type),
-        ("columns".into(), column_type),
-        ("foreign_keys".into(), foreign_key_type),
+    let object_types = BTreeMap::from_iter([
+        ("table".into(), table_type),
+        ("column".into(), column_type),
+        ("foreign_key".into(), foreign_key_type),
     ]);
 
-    let database_url_argument: HashMap<String, models::ArgumentInfo> = HashMap::from_iter([(
+    let database_url_argument: BTreeMap<String, models::ArgumentInfo> = BTreeMap::from_iter([(
         "database_url".into(),
         models::ArgumentInfo {
             description: Some(
@@ -273,16 +273,16 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         },
     )]);
 
-    let tables_table = models::TableInfo {
+    let tables_collection = models::CollectionInfo {
         name: "tables".into(),
         description: Some("A collection of Postgres tables".into()),
-        table_type: "table".into(),
+        collection_type: "table".into(),
         arguments: database_url_argument.clone(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::new(),
-        uniqueness_constraints: HashMap::from_iter([(
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
             "TableSchemaName".into(),
             models::UniquenessConstraint {
                 unique_columns: vec!["table_schema".into(), "table_name".into()],
@@ -290,25 +290,25 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         )]),
     };
 
-    let columns_table = models::TableInfo {
+    let columns_collection = models::CollectionInfo {
         name: "columns".into(),
         description: Some("A collection of Postgres columns".into()),
-        table_type: "column".into(),
+        collection_type: "column".into(),
         arguments: database_url_argument.clone(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::from_iter([(
+        foreign_keys: BTreeMap::from_iter([(
             "ColumnToTable".into(),
             models::ForeignKeyConstraint {
-                column_mapping: HashMap::from_iter([
+                column_mapping: BTreeMap::from_iter([
                     ("table_schema".into(), "table_schema".into()),
                     ("table_name".into(), "table_name".into()),
                 ]),
-                foreign_table: "table".into(),
+                foreign_collection: "table".into(),
             },
         )]),
-        uniqueness_constraints: HashMap::from_iter([(
+        uniqueness_constraints: BTreeMap::from_iter([(
             "ColumnName".into(),
             models::UniquenessConstraint {
                 unique_columns: vec![
@@ -320,16 +320,16 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         )]),
     };
 
-    let foreign_keys_table = models::TableInfo {
+    let foreign_keys_collection = models::CollectionInfo {
         name: "foreign_keys".into(),
         description: Some("A collection of Postgres foreign keys".into()),
-        table_type: "foreign_key".into(),
+        collection_type: "foreign_key".into(),
         arguments: database_url_argument.clone(),
         deletable: false,
         insertable_columns: None,
         updatable_columns: None,
-        foreign_keys: HashMap::new(),
-        uniqueness_constraints: HashMap::from_iter([(
+        foreign_keys: BTreeMap::new(),
+        uniqueness_constraints: BTreeMap::from_iter([(
             "ForeignKeyName".into(),
             models::UniquenessConstraint {
                 unique_columns: vec!["fkey_name".into()],
@@ -337,16 +337,22 @@ pub async fn handler() -> Json<models::SchemaResponse> {
         )]),
     };
 
-    let tables = vec![tables_table, columns_table, foreign_keys_table];
+    let collections = vec![
+        tables_collection,
+        columns_collection,
+        foreign_keys_collection,
+    ];
 
-    // ANCHOR: schema_commands
-    let commands = vec![];
-    // ANCHOR_END: schema_commands
+    // TODO: implement function to accept tables/foreign-keys list and
+    // return output in /schema format
+    let functions: Vec<models::FunctionInfo> = vec![];
+    let procedures: Vec<models::ProcedureInfo> = vec![];
 
     Json(models::SchemaResponse {
         scalar_types,
         object_types,
-        tables,
-        commands,
+        collections,
+        functions,
+        procedures,
     })
 }

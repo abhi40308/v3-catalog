@@ -2,25 +2,25 @@ mod fkey;
 mod predicate_builder;
 mod utils;
 
+use indexmap::IndexMap;
 use ndc_client::models::{self, Expression};
 use sqlparser::ast::{
     Expr, ObjectName, Query, Select, SelectItem, SetExpr, Statement, TableAlias, TableFactor,
     TableWithJoins, Value,
 };
-use std::collections::HashMap;
 use std::str::FromStr;
 
 use crate::error::ServerError;
-use crate::tables::SupportedTable;
+use crate::tables::SupportedCollection;
 
 use fkey::get_fkey_query;
 use predicate_builder::get_predicate_expression;
 use utils::{get_sql_function_expression, get_sql_query, get_sql_quoted_identifier};
 
 pub fn build_sql_query(request: &models::QueryRequest) -> Result<Statement, ServerError> {
-    let table = SupportedTable::from_str(&request.table);
+    let collection = SupportedCollection::from_str(&request.collection);
 
-    match table {
+    match collection {
         Ok(t) => Ok(Statement::Query(get_node_subquery(&request.query, &t)?)),
         Err(_) => Err(ServerError::BadRequest("unknown table".into())),
     }
@@ -28,12 +28,12 @@ pub fn build_sql_query(request: &models::QueryRequest) -> Result<Statement, Serv
 
 pub fn get_node_subquery(
     query: &ndc_client::models::Query,
-    table: &SupportedTable,
+    collection: &SupportedCollection,
 ) -> Result<Box<Query>, ServerError> {
     // query wrapper projection
     let wrapper_projection = match &query.fields {
         Some(f) => {
-            let rows_subquery = get_rows_json_subquery(f.clone(), query, table);
+            let rows_subquery = get_rows_json_subquery(f.clone(), query, collection);
             match rows_subquery {
                 Ok(q) => vec![SelectItem::ExprWithAlias {
                     expr: Expr::Subquery(q),
@@ -110,13 +110,13 @@ pub fn get_node_subquery(
 
 // get the subquery to to get rows json
 fn get_rows_json_subquery(
-    fields: HashMap<String, models::Field>,
+    fields: IndexMap<String, models::Field>,
     query: &models::Query,
-    table: &SupportedTable,
+    table: &SupportedCollection,
 ) -> Result<Box<Query>, ServerError> {
     let row_subquery = match table {
-        SupportedTable::Columns | SupportedTable::Tables => get_rows_query(query, table),
-        SupportedTable::ForeignKeys {} => get_fkey_query(query, table),
+        SupportedCollection::Columns | SupportedCollection::Tables => get_rows_query(query, table),
+        SupportedCollection::ForeignKeys {} => get_fkey_query(query, table),
     };
 
     let rows_json_projection = vec![SelectItem::ExprWithAlias {
@@ -169,14 +169,14 @@ fn get_rows_json_subquery(
 
 pub fn get_rows_query(
     query: &ndc_client::models::Query,
-    table: &SupportedTable,
+    table: &SupportedCollection,
 ) -> Result<Box<Query>, ServerError> {
     /*Build Predicate*/
     // start with a custom predicate to ignore tables from information_schema and pg_catalog
     let mut predicate = Expression::And {
         expressions: vec![
             (Expression::BinaryComparisonOperator {
-                column: Box::new(models::ComparisonTarget::RootTableColumn {
+                column: Box::new(models::ComparisonTarget::RootCollectionColumn {
                     name: "table_schema".into(),
                 }),
                 operator: Box::new(models::BinaryComparisonOperator::Other {
@@ -187,7 +187,7 @@ pub fn get_rows_query(
                 }),
             }),
             (Expression::BinaryComparisonOperator {
-                column: Box::new(models::ComparisonTarget::RootTableColumn {
+                column: Box::new(models::ComparisonTarget::RootCollectionColumn {
                     name: "table_schema".into(),
                 }),
                 operator: Box::new(models::BinaryComparisonOperator::Other {
@@ -228,7 +228,7 @@ pub fn get_rows_query(
     }];
 
     // fields
-    let binding = HashMap::new();
+    let binding = IndexMap::new();
     let fields = match &query.fields {
         Some(f) => f,
         None => &binding,

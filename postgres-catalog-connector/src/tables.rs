@@ -14,7 +14,7 @@ pub struct ColumnInfo {
 }
 
 // Tables supported by this data connector
-pub enum SupportedTable {
+pub enum SupportedCollection {
     Tables,
     Columns,
     ForeignKeys,
@@ -23,13 +23,13 @@ pub enum SupportedTable {
 pub const TABLES: &str = "tables";
 pub const COLUMNS: &str = "columns";
 pub const FOREIGN_KEYS: &str = "foreign_keys";
-impl SupportedTable {
+impl SupportedCollection {
     // gets the name of the underlying table from enum
     pub fn get_table_name(&self) -> String {
         match self {
-            SupportedTable::Tables => TABLES.to_string(),
-            SupportedTable::Columns => COLUMNS.to_string(),
-            SupportedTable::ForeignKeys => FOREIGN_KEYS.to_string(),
+            SupportedCollection::Tables => TABLES.to_string(),
+            SupportedCollection::Columns => COLUMNS.to_string(),
+            SupportedCollection::ForeignKeys => FOREIGN_KEYS.to_string(),
         }
     }
 
@@ -41,7 +41,7 @@ impl SupportedTable {
     // gets the columns of the underlying table from enum
     pub fn get_columns(&self) -> Vec<ColumnInfo> {
         match self {
-            SupportedTable::Tables => {
+            SupportedCollection::Tables => {
                 vec![
                     ColumnInfo {
                         r#type: "String".into(),
@@ -53,7 +53,7 @@ impl SupportedTable {
                     },
                 ]
             }
-            SupportedTable::Columns => {
+            SupportedCollection::Columns => {
                 vec![
                     ColumnInfo {
                         r#type: "String".into(),
@@ -73,7 +73,7 @@ impl SupportedTable {
                     },
                 ]
             }
-            SupportedTable::ForeignKeys => {
+            SupportedCollection::ForeignKeys => {
                 vec![
                     ColumnInfo {
                         r#type: "String".into(),
@@ -121,27 +121,27 @@ impl SupportedTable {
     }
 }
 
-impl ToString for SupportedTable {
+impl ToString for SupportedCollection {
     fn to_string(&self) -> String {
         match self {
-            SupportedTable::Tables => TABLES.into(),
-            SupportedTable::Columns => COLUMNS.into(),
-            SupportedTable::ForeignKeys => FOREIGN_KEYS.into(),
+            SupportedCollection::Tables => TABLES.into(),
+            SupportedCollection::Columns => COLUMNS.into(),
+            SupportedCollection::ForeignKeys => FOREIGN_KEYS.into(),
         }
     }
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct ParseSupportedTableErr;
-impl FromStr for SupportedTable {
-    type Err = ParseSupportedTableErr;
+pub struct ParseSupportedCollectionErr;
+impl FromStr for SupportedCollection {
+    type Err = ParseSupportedCollectionErr;
 
-    fn from_str(s: &str) -> Result<SupportedTable, ParseSupportedTableErr> {
+    fn from_str(s: &str) -> Result<SupportedCollection, ParseSupportedCollectionErr> {
         match s {
-            TABLES => Ok(SupportedTable::Tables),
-            COLUMNS => Ok(SupportedTable::Columns),
-            FOREIGN_KEYS => Ok(SupportedTable::ForeignKeys),
-            _ => Err(ParseSupportedTableErr),
+            TABLES => Ok(SupportedCollection::Tables),
+            COLUMNS => Ok(SupportedCollection::Columns),
+            FOREIGN_KEYS => Ok(SupportedCollection::ForeignKeys),
+            _ => Err(ParseSupportedCollectionErr),
         }
     }
 }

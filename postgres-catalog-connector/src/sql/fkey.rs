@@ -1,12 +1,12 @@
+use indexmap::IndexMap;
 use ndc_client::models::{self};
 use sqlparser::ast::{
     BinaryOperator, Expr, Ident, Join, JoinConstraint, JoinOperator, ObjectName, Query, SelectItem,
     TableAlias, TableFactor, TableWithJoins, Value,
 };
-use std::collections::HashMap;
 
 use crate::error::ServerError;
-use crate::tables::SupportedTable;
+use crate::tables::SupportedCollection;
 
 use crate::sql::predicate_builder::get_predicate_expression;
 use crate::sql::utils::{
@@ -16,7 +16,7 @@ use crate::sql::utils::{
 
 pub fn get_fkey_query(
     query: &ndc_client::models::Query,
-    table: &SupportedTable,
+    table: &SupportedCollection,
 ) -> Result<Box<Query>, ServerError> {
     // Builds the Select clause. This is the equivalent SQL statement (if all fields are selected)
     // SELECT q.schema_from AS schema_from,
@@ -28,7 +28,7 @@ pub fn get_fkey_query(
     // min(q.confdeltype) AS on_delete,
     // json_object_agg(ac.attname, afc.attname) AS column_mapping
 
-    let binding = HashMap::new();
+    let binding = IndexMap::new();
     let fields = match &query.fields {
         Some(f) => f,
         None => &binding,

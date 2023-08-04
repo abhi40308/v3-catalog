@@ -1,14 +1,12 @@
 use axum::Json;
+use cc_postgres::configuration;
+use cc_postgres::{error::ServerError, sql};
 use ndc_client::models::{Argument, QueryRequest, QueryResponse};
 use sqlx::{
     postgres::{PgPoolOptions, PgRow},
     PgPool, Row,
 };
-use std::collections::HashMap;
-// use sqlx::{types, Row};
-// use cc_postgres::configuration::{Configuration};
-use cc_postgres::{error::ServerError, sql};
-use cc_postgres::configuration;
+use std::collections::BTreeMap;
 
 pub const ROUTENAME: &str = "/query";
 
@@ -21,8 +19,8 @@ pub async fn handler(
 }
 
 async fn resolve_query_request(request: &QueryRequest) -> Result<Json<QueryResponse>, ServerError> {
-    // unwrap the variables from Option type; default to HashMap
-    let vars = request.variables.clone().unwrap_or(vec![HashMap::new()]);
+    // unwrap the variables from Option type; default to BTreeMap
+    let vars = request.variables.clone().unwrap_or(vec![BTreeMap::new()]);
 
     // get the database_url variable from arguments or variables
     let database_url = get_argument_value(&request.arguments, &vars, "database_url".into());
@@ -37,7 +35,7 @@ async fn resolve_query_request(request: &QueryRequest) -> Result<Json<QueryRespo
         None => match configuration::get_default_db_url() {
             Some(db_url) => get_sql_connection_pool(&db_url).await,
             None => return Err(ServerError::BadRequest("no db url provided".into())),
-        } 
+        },
     }
     .map_err(|err| {
         ServerError::BadRequest(format!(
@@ -92,8 +90,8 @@ async fn get_sql_connection_pool(db_url: &String) -> Result<PgPool, sqlx::Error>
 // get's an argument value from arguments and variables provided in the request
 // the borrowing can be improved
 fn get_argument_value<'a>(
-    arguments: &'a HashMap<String, Argument>,
-    variables: &'a Vec<HashMap<String, serde_json::Value>>,
+    arguments: &'a BTreeMap<String, Argument>,
+    variables: &'a Vec<BTreeMap<String, serde_json::Value>>,
     key: String,
 ) -> Option<&'a serde_json::Value> {
     let argument = arguments.get(key.as_str());
