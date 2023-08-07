@@ -39,62 +39,55 @@ pub fn get_fkey_query(
         fields
             .iter()
             .map(|(alias, field)| SelectItem::ExprWithAlias {
-                expr: get_sql_function_expression(
-                    "json_build_object",
-                    vec![
-                        Expr::Value(Value::SingleQuotedString("value".to_string())),
-                        match field {
-                            models::Field::Column { column, .. } => {
-                                let table_info = table.get_table_info();
-                                let column_info = table_info
-                                    .columns
-                                    .iter()
-                                    .find(|c| c.name == column.clone())
-                                    .expect("column should be in table");
+                expr: match field {
+                    models::Field::Column { column, .. } => {
+                        let table_info = table.get_table_info();
+                        let column_info = table_info
+                            .columns
+                            .iter()
+                            .find(|c| c.name == column.clone())
+                            .expect("column should be in table");
 
-                                match &column_info.name[..] {
-                                    "column_mapping" => get_sql_function_expression(
-                                        "json_object_agg",
-                                        vec![
-                                            Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("ac"),
-                                                get_sql_quoted_identifier("attname"),
-                                            ]),
-                                            Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("afc"),
-                                                get_sql_quoted_identifier("attname"),
-                                            ]),
-                                        ],
-                                        None,
-                                    ),
-                                    "schema_to" | "table_to" | "on_update" | "on_delete" => {
-                                        get_sql_function_expression(
-                                            "min",
-                                            vec![Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("q"),
-                                                get_sql_quoted_identifier(
-                                                    get_equivalent_table_column(&column_info.name),
-                                                ),
-                                            ])],
-                                            None,
-                                        )
-                                    }
-                                    "schema_from" | "table_from" | "fkey_name" => {
-                                        Expr::CompoundIdentifier(vec![
-                                            get_sql_quoted_identifier("q"),
-                                            get_sql_quoted_identifier(get_equivalent_table_column(
-                                                &column_info.name,
-                                            )),
-                                        ])
-                                    }
-                                    _ => todo!(),
-                                }
+                        match &column_info.name[..] {
+                            "column_mapping" => get_sql_function_expression(
+                                "json_object_agg",
+                                vec![
+                                    Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("ac"),
+                                        get_sql_quoted_identifier("attname"),
+                                    ]),
+                                    Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("afc"),
+                                        get_sql_quoted_identifier("attname"),
+                                    ]),
+                                ],
+                                None,
+                            ),
+                            "schema_to" | "table_to" | "on_update" | "on_delete" => {
+                                get_sql_function_expression(
+                                    "min",
+                                    vec![Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("q"),
+                                        get_sql_quoted_identifier(
+                                            get_equivalent_table_column(&column_info.name),
+                                        ),
+                                    ])],
+                                    None,
+                                )
                             }
-                            models::Field::Relationship { .. } => todo!(),
-                        },
-                    ],
-                    None,
-                ),
+                            "schema_from" | "table_from" | "fkey_name" => {
+                                Expr::CompoundIdentifier(vec![
+                                    get_sql_quoted_identifier("q"),
+                                    get_sql_quoted_identifier(get_equivalent_table_column(
+                                        &column_info.name,
+                                    )),
+                                ])
+                            }
+                            _ => todo!(),
+                        }
+                    }
+                    models::Field::Relationship { .. } => todo!(),
+                },
                 alias: get_sql_quoted_identifier(alias),
             })
             .collect()

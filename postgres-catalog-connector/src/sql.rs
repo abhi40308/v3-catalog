@@ -239,28 +239,21 @@ pub fn get_rows_query(
         fields
             .iter()
             .map(|(alias, field)| SelectItem::ExprWithAlias {
-                expr: get_sql_function_expression(
-                    "json_build_object",
-                    vec![
-                        Expr::Value(Value::SingleQuotedString("value".to_string())),
-                        match field {
-                            models::Field::Column { column, .. } => {
-                                let table_info = table.get_table_info();
-                                let column_info = table_info
-                                    .columns
-                                    .iter()
-                                    .find(|c| c.name == column.clone())
-                                    .expect("column should be in table");
-                                Expr::CompoundIdentifier(vec![
-                                    get_sql_quoted_identifier("_origin"),
-                                    get_sql_quoted_identifier(&column_info.name),
-                                ])
-                            }
-                            models::Field::Relationship { .. } => todo!(),
-                        },
-                    ],
-                    None,
-                ),
+                expr: match field {
+                    models::Field::Column { column, .. } => {
+                        let table_info = table.get_table_info();
+                        let column_info = table_info
+                            .columns
+                            .iter()
+                            .find(|c| c.name == column.clone())
+                            .expect("column should be in table");
+                        Expr::CompoundIdentifier(vec![
+                            get_sql_quoted_identifier("_origin"),
+                            get_sql_quoted_identifier(&column_info.name),
+                        ])
+                    }
+                    models::Field::Relationship { .. } => todo!(),
+                },
                 alias: get_sql_quoted_identifier(alias),
             })
             .collect()
