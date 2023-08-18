@@ -1,12 +1,12 @@
+use indexmap::IndexMap;
 use ndc_client::models::{self};
 use sqlparser::ast::{
     BinaryOperator, Expr, Ident, Join, JoinConstraint, JoinOperator, ObjectName, Query, SelectItem,
     TableAlias, TableFactor, TableWithJoins, Value,
 };
-use std::collections::HashMap;
 
 use crate::error::ServerError;
-use crate::tables::SupportedTable;
+use crate::tables::SupportedCollection;
 
 use crate::sql::predicate_builder::get_predicate_expression;
 use crate::sql::utils::{
@@ -16,7 +16,7 @@ use crate::sql::utils::{
 
 pub fn get_fkey_query(
     query: &ndc_client::models::Query,
-    table: &SupportedTable,
+    table: &SupportedCollection,
 ) -> Result<Box<Query>, ServerError> {
     // Builds the Select clause. This is the equivalent SQL statement (if all fields are selected)
     // SELECT q.schema_from AS schema_from,
@@ -28,7 +28,7 @@ pub fn get_fkey_query(
     // min(q.confdeltype) AS on_delete,
     // json_object_agg(ac.attname, afc.attname) AS column_mapping
 
-    let binding = HashMap::new();
+    let binding = IndexMap::new();
     let fields = match &query.fields {
         Some(f) => f,
         None => &binding,
@@ -39,62 +39,55 @@ pub fn get_fkey_query(
         fields
             .iter()
             .map(|(alias, field)| SelectItem::ExprWithAlias {
-                expr: get_sql_function_expression(
-                    "json_build_object",
-                    vec![
-                        Expr::Value(Value::SingleQuotedString("value".to_string())),
-                        match field {
-                            models::Field::Column { column, .. } => {
-                                let table_info = table.get_table_info();
-                                let column_info = table_info
-                                    .columns
-                                    .iter()
-                                    .find(|c| c.name == column.clone())
-                                    .expect("column should be in table");
+                expr: match field {
+                    models::Field::Column { column, .. } => {
+                        let table_info = table.get_table_info();
+                        let column_info = table_info
+                            .columns
+                            .iter()
+                            .find(|c| c.name == column.clone())
+                            .expect("column should be in table");
 
-                                match &column_info.name[..] {
-                                    "column_mapping" => get_sql_function_expression(
-                                        "json_object_agg",
-                                        vec![
-                                            Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("ac"),
-                                                get_sql_quoted_identifier("attname"),
-                                            ]),
-                                            Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("afc"),
-                                                get_sql_quoted_identifier("attname"),
-                                            ]),
-                                        ],
-                                        None,
-                                    ),
-                                    "schema_to" | "table_to" | "on_update" | "on_delete" => {
-                                        get_sql_function_expression(
-                                            "min",
-                                            vec![Expr::CompoundIdentifier(vec![
-                                                get_sql_quoted_identifier("q"),
-                                                get_sql_quoted_identifier(
-                                                    get_equivalent_table_column(&column_info.name),
-                                                ),
-                                            ])],
-                                            None,
-                                        )
-                                    }
-                                    "schema_from" | "table_from" | "fkey_name" => {
-                                        Expr::CompoundIdentifier(vec![
-                                            get_sql_quoted_identifier("q"),
-                                            get_sql_quoted_identifier(get_equivalent_table_column(
-                                                &column_info.name,
-                                            )),
-                                        ])
-                                    }
-                                    _ => todo!(),
-                                }
+                        match &column_info.name[..] {
+                            "column_mapping" => get_sql_function_expression(
+                                "json_object_agg",
+                                vec![
+                                    Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("ac"),
+                                        get_sql_quoted_identifier("attname"),
+                                    ]),
+                                    Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("afc"),
+                                        get_sql_quoted_identifier("attname"),
+                                    ]),
+                                ],
+                                None,
+                            ),
+                            "schema_to" | "table_to" | "on_update" | "on_delete" => {
+                                get_sql_function_expression(
+                                    "min",
+                                    vec![Expr::CompoundIdentifier(vec![
+                                        get_sql_quoted_identifier("q"),
+                                        get_sql_quoted_identifier(
+                                            get_equivalent_table_column(&column_info.name),
+                                        ),
+                                    ])],
+                                    None,
+                                )
                             }
-                            models::Field::Relationship { .. } => todo!(),
-                        },
-                    ],
-                    None,
-                ),
+                            "schema_from" | "table_from" | "fkey_name" => {
+                                Expr::CompoundIdentifier(vec![
+                                    get_sql_quoted_identifier("q"),
+                                    get_sql_quoted_identifier(get_equivalent_table_column(
+                                        &column_info.name,
+                                    )),
+                                ])
+                            }
+                            _ => todo!(),
+                        }
+                    }
+                    models::Field::Relationship { .. } => todo!(),
+                },
                 alias: get_sql_quoted_identifier(alias),
             })
             .collect()

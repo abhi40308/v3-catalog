@@ -49,7 +49,7 @@ pub fn get_predicate_expression(expr: &models::Expression, alias: &str) -> Expr 
             let value = &**value;
 
             let left = match column {
-                models::ComparisonTarget::RootTableColumn { name } => {
+                models::ComparisonTarget::RootCollectionColumn { name } => {
                     Expr::CompoundIdentifier(vec![
                         get_sql_quoted_identifier(alias),
                         get_sql_quoted_identifier(name),

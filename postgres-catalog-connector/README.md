@@ -6,14 +6,14 @@ A custom data connector that accepts PG database URL as an argument and returns 
 
 ### Development
 
-1. Start server using `PORT=5000 cargo run`
+1. Start server using `PORT=5500 cargo run`
 2. Get schema: `curl http://localhost:5000/schema`
 3. Get capabilities: `curl http://localhost:5000/capabilities`
-4. Make queries:
+4. Make queries (update the `database_url` argument accordingly):
 
-   - `curl -d '{ "table": "columns", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {} }, "column_name": { "type": "column", "column": "column_name", "arguments": {} }, "data_type": { "type": "column", "column": "data_type", "arguments": {} } } }, "arguments": { "database_url": {"type": "literal", "value": "postgres://test" } }, "table_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5000/query`
+   - `curl -d '{ "collection": "columns", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {} }, "column_name": { "type": "column", "column": "column_name", "arguments": {} }, "data_type": { "type": "column", "column": "data_type", "arguments": {} } } }, "arguments": { "database_url": {"type": "literal", "value": "postgres://postgres:postgrespassword@localhost:5432/postgres" } }, "collection_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5500/query`
 
-     - `curl -d '{ "table": "tables", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {}}}}, "arguments": { "database_url": {"type": "literal", "value": "" } }, "table_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5000/query`
+     - `curl -d '{ "collection": "tables", "query": { "limit": 10, "fields": { "table_name": { "type": "column", "column": "table_name", "arguments": {}}}}, "arguments": { "database_url": {"type": "literal", "value": "postgres://postgres:postgrespassword@localhost:5432/postgres" } }, "collection_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5500/query`
 
 ### Capabilities
 
@@ -108,7 +108,7 @@ Foreign keys are fetched with a query equivalent to:
 The following curl command can be used to fetch foreign keys:
 
 ```
-curl -d '{ "table": "foreign_keys", "query": { "limit": 10, "fields": { "fkey_name": { "type": "column", "column": "fkey_name", "arguments": {} }, "table_from": { "type": "column", "column": "table_from", "arguments": {} }, "schema_from": { "type": "column", "column": "schema_from", "arguments": {} }, "column_mapping": { "type": "column", "column": "column_mapping", "arguments": {} }, "on_update": { "type": "column", "column": "on_update", "arguments": {} }, "on_delete": { "type": "column", "column": "on_delete", "arguments": {} }, "table_to": { "type": "column", "column": "table_to", "arguments": {} }, "schema_to": { "type": "column", "column": "schema_to", "arguments": {} } } }, "arguments": { "database_url": {"type": "literal", "value": "postgres://postgres:postgrespassword@localhost:5432/postgres" } }, "table_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5500/query
+curl -d '{ "collection": "foreign_keys", "query": { "limit": 10, "fields": { "fkey_name": { "type": "column", "column": "fkey_name", "arguments": {} }, "table_from": { "type": "column", "column": "table_from", "arguments": {} }, "schema_from": { "type": "column", "column": "schema_from", "arguments": {} }, "column_mapping": { "type": "column", "column": "column_mapping", "arguments": {} }, "on_update": { "type": "column", "column": "on_update", "arguments": {} }, "on_delete": { "type": "column", "column": "on_delete", "arguments": {} }, "table_to": { "type": "column", "column": "table_to", "arguments": {} }, "schema_to": { "type": "column", "column": "schema_to", "arguments": {} } } }, "arguments": { "database_url": {"type": "literal", "value": "postgres://postgres:postgrespassword@localhost:5432/postgres" } }, "collection_relationships": {} }' -H "Content-Type: application/json" -X POST http://localhost:5500/query
 ```
 
 Example Response of the above curl command:

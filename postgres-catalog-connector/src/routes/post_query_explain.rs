@@ -1,8 +1,8 @@
 use axum::Json;
-use cc_postgres::sql;
-
 use cc_postgres::error::ServerError;
+use cc_postgres::sql;
 use ndc_client::models::{ExplainResponse, QueryRequest};
+use std::collections::BTreeMap;
 
 pub const ROUTENAME: &str = "/query/explain";
 
@@ -19,8 +19,7 @@ pub async fn handler(
     };
 
     let response = ExplainResponse {
-        lines: vec![],
-        query: built_query.to_string(),
+        details: BTreeMap::from_iter([("SQL Query".into(), built_query.to_string())]),
     };
 
     Ok(Json(response))

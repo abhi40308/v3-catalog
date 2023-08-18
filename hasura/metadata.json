@@ -1,570 +1,608 @@
 {
-    "metadata": [
-        {
-            "kind": "dataSource",
-            "sourceType": "dataConnector",
-            "sourceConfig": {
-                "url": "http://207.154.210.195:5000"
+  "metadata": [
+    {
+      "kind": "dataSource",
+      "name": "pg_catalog_connector",
+      "dataConnectorUrl": "https://bf61-103-179-0-153.ngrok-free.app",
+      "schema": {
+        "scalar_types": {
+          "String": {
+            "aggregate_functions": {},
+            "comparison_operators": {
+              "like": {
+                "argument_type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              }
             },
-            "name": "pg_catalog_connector",
-            "schema": {
-                "scalar_types": {
-                    "String": {
-                        "aggregate_functions": {},
-                        "comparison_operators": {
-                            "like": {
-                                "argument_type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            }
-                        },
-                        "update_operators": {}
-                    },
-                    "Int": {
-                        "aggregate_functions": {
-                            "max": {
-                                "result_type": {
-                                    "type": "nullable",
-                                    "underlying_type": {
-                                        "type": "named",
-                                        "name": "Int"
-                                    }
-                                }
-                            },
-                            "min": {
-                                "result_type": {
-                                    "type": "nullable",
-                                    "underlying_type": {
-                                        "type": "named",
-                                        "name": "Int"
-                                    }
-                                }
-                            }
-                        },
-                        "comparison_operators": {},
-                        "update_operators": {}
-                    }
-                },
-                "object_types": {
-                    "tables": {
-                        "description": "Postgres table definition",
-                        "fields": {
-                            "table_schema": {
-                                "description": "Name of the schema of the Postgres table",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "table_name": {
-                                "description": "Name of the Postgres table",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "columns": {
-                                "description": "The article's author ID",
-                                "arguments": {},
-                                "type": {
-                                    "type": "array",
-                                    "element_type": {
-                                        "type": "named",
-                                        "name": "column"
-                                    }
-                                }
-                            },
-                            "comment": {
-                                "description": "Name of the Postgres table",
-                                "arguments": {},
-                                "type": {
-                                    "type": "nullable",
-                                    "underlying_type": {
-                                        "type": "named",
-                                        "name": "String"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "columns": {
-                        "description": "Postgres column definition",
-                        "fields": {
-                            "table_schema": {
-                                "description": "Name of the schema of the Postgres table",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "column_name": {
-                                "description": "Name of the table column",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "table": {
-                                "description": "Comment of the table column",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "table"
-                                }
-                            },
-                            "comment": {
-                                "description": "Comment of the table column",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "table_name": {
-                                "description": "Name of the Postgres table",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            }
-                        }
-                    },
-                    "foreign_keys": {
-                        "description": "Postgres foreign keys definition",
-                        "fields": {
-                            "on_delete": {
-                                "description": "On delete clause",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "fkey_name": {
-                                "description": "Name of the foreign key constraint",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "table_from": {
-                                "description": "Name of the table from which the foreign key exists",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "column_mapping": {
-                                "description": "Mapping of the columns with the foreign key",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "on_update": {
-                                "description": "On update clause",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "table_to": {
-                                "description": "Name of the table to which the foreign key exists",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "schema_from": {
-                                "description": "Name of the schema from which the foreign key exists",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            },
-                            "schema_to": {
-                                "description": "Name of the schema to which the foreign key exists",
-                                "arguments": {},
-                                "type": {
-                                    "type": "named",
-                                    "name": "String"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tables": [
-                    {
-                        "name": "tables",
-                        "description": "A collection of Postgres tables",
-                        "arguments": {
-                            "database_url": {
-                                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
-                                "type": {
-                                    "type": "named",
-                                    "name": "database_url"
-                                }
-                            }
-                        },
-                        "type": "table",
-                        "deletable": false,
-                        "uniqueness_constraints": {
-                            "TableSchemaName": {
-                                "unique_columns": [
-                                    "table_schema",
-                                    "table_name"
-                                ]
-                            }
-                        },
-                        "foreign_keys": {}
-                    },
-                    {
-                        "name": "columns",
-                        "description": "A collection of Postgres columns",
-                        "arguments": {
-                            "database_url": {
-                                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
-                                "type": {
-                                    "type": "named",
-                                    "name": "database_url"
-                                }
-                            }
-                        },
-                        "type": "column",
-                        "deletable": false,
-                        "uniqueness_constraints": {
-                            "ColumnName": {
-                                "unique_columns": [
-                                    "table_schema",
-                                    "table_name",
-                                    "column_name"
-                                ]
-                            }
-                        },
-                        "foreign_keys": {
-                            "ColumnToTable": {
-                                "column_mapping": {
-                                    "table_name": "table_name",
-                                    "table_schema": "table_schema"
-                                },
-                                "foreign_table": "table"
-                            }
-                        }
-                    },
-                    {
-                        "name": "foreign_keys",
-                        "description": "A collection of Postgres foreign keys",
-                        "arguments": {
-                            "database_url": {
-                                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
-                                "type": {
-                                    "type": "named",
-                                    "name": "database_url"
-                                }
-                            }
-                        },
-                        "type": "foreign_key",
-                        "deletable": false,
-                        "uniqueness_constraints": {
-                            "ForeignKeyName": {
-                                "unique_columns": [
-                                    "fkey_name"
-                                ]
-                            }
-                        },
-                        "foreign_keys": {}
-                    }
-                ],
-                "commands": []
-            }
-        },
-        {
-            "kind": "objectType",
-            "name": "table",
-            "fields": [
-                {
-                    "name": "table_name",
-                    "type": "String"
-                },
-                {
-                    "name": "table_schema",
-                    "type": "String"
+            "update_operators": {}
+          },
+          "Int": {
+            "aggregate_functions": {
+              "min": {
+                "result_type": {
+                  "type": "nullable",
+                  "underlying_type": {
+                    "type": "named",
+                    "name": "Int"
+                  }
                 }
-            ]
-        },
-        {
-            "kind": "objectType",
-            "name": "column",
-            "fields": [
-                {
-                    "name": "table_name",
-                    "type": "String"
-                },
-                {
-                    "name": "table_schema",
-                    "type": "String"
-                },
-                {
-                    "name": "column_name",
-                    "type": "String"
-                },
-                {
-                    "name": "data_type",
-                    "type": "String"
+              },
+              "max": {
+                "result_type": {
+                  "type": "nullable",
+                  "underlying_type": {
+                    "type": "named",
+                    "name": "Int"
+                  }
                 }
-            ]
-        },
-        {
-            "kind": "objectType",
-            "name": "foreign_key",
-            "fields": [
-                {
-                    "name": "schema_from",
-                    "type": "String"
-                },
-                {
-                    "name": "schema_to",
-                    "type": "String"
-                },
-                {
-                    "name": "table_from",
-                    "type": "String"
-                },
-                {
-                    "name": "table_to",
-                    "type": "String"
-                },
-                {
-                    "name": "column_mapping",
-                    "type": "String"
-                },
-                {
-                    "name": "fkey_name",
-                    "type": "String"
-                },
-                {
-                    "name": "on_delete",
-                    "type": "String"
-                },
-                {
-                    "name": "on_update",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "kind": "model",
-            "name": "Tables",
-            "dataType": "table"
-        },
-        {
-            "kind": "model",
-            "name": "Columns",
-            "dataType": "column"
-        },
-        {
-            "kind": "modelSource",
-            "modelName": "Tables",
-            "dataSource": "pg_catalog_connector",
-            "modelSource": {
-                "tablePath": "tables"
+              }
             },
-            "typeSources": {
-                "table": {
-                    "fieldSources": {
-                        "table_schema": {
-                            "fieldSource": {
-                                "columnName": "table_schema",
-                                "columnType": "String"
-                            }
-                        },
-                        "table_name": {
-                            "fieldSource": {
-                                "columnName": "table_name",
-                                "columnType": "String"
-                            }
-                        }
-                    }
-                }
-            }
+            "comparison_operators": {},
+            "update_operators": {}
+          }
         },
-        {
-            "kind": "modelSource",
-            "modelName": "Columns",
-            "dataSource": "pg_catalog_connector",
-            "modelSource": {
-                "tablePath": "columns"
+        "object_types": {
+          "table": {
+            "description": "Postgres table definition",
+            "fields": {
+              "table_schema": {
+                "description": "Name of the schema of the Postgres table",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "table_name": {
+                "description": "Name of the Postgres table",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "columns": {
+                "description": "The article's author ID",
+                "arguments": {},
+                "type": {
+                  "type": "array",
+                  "element_type": {
+                    "type": "named",
+                    "name": "column"
+                  }
+                }
+              },
+              "comment": {
+                "description": "Name of the Postgres table",
+                "arguments": {},
+                "type": {
+                  "type": "nullable",
+                  "underlying_type": {
+                    "type": "named",
+                    "name": "String"
+                  }
+                }
+              }
+            }
+          },
+          "column": {
+            "description": "Postgres column definition",
+            "fields": {
+              "table_schema": {
+                "description": "Name of the schema of the Postgres table",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "column_name": {
+                "description": "Name of the table column",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "data_type": {
+                "description": "Data type of the column",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "table": {
+                "description": "Comment of the table column",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "table"
+                }
+              },
+              "comment": {
+                "description": "Comment of the table column",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "table_name": {
+                "description": "Name of the Postgres table",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              }
+            }
+          },
+          "foreign_key": {
+            "description": "Postgres foreign keys definition",
+            "fields": {
+              "on_delete": {
+                "description": "On delete clause",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "fkey_name": {
+                "description": "Name of the foreign key constraint",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "table_from": {
+                "description": "Name of the table from which the foreign key exists",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "column_mapping": {
+                "description": "Mapping of the columns with the foreign key",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "on_update": {
+                "description": "On update clause",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "table_to": {
+                "description": "Name of the table to which the foreign key exists",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "schema_from": {
+                "description": "Name of the schema from which the foreign key exists",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              },
+              "schema_to": {
+                "description": "Name of the schema to which the foreign key exists",
+                "arguments": {},
+                "type": {
+                  "type": "named",
+                  "name": "String"
+                }
+              }
+            }
+          }
+        },
+        "collections": [
+          {
+            "name": "tables",
+            "description": "A collection of Postgres tables",
+            "arguments": {
+              "database_url": {
+                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
+                "type": {
+                  "type": "named",
+                  "name": "database_url"
+                }
+              }
             },
-            "typeSources": {
-                "column": {
-                    "fieldSources": {
-                        "table_schema": {
-                            "fieldSource": {
-                                "columnName": "table_schema",
-                                "columnType": "String"
-                            }
-                        },
-                        "table_name": {
-                            "fieldSource": {
-                                "columnName": "table_name",
-                                "columnType": "String"
-                            }
-                        },
-                        "column_name": {
-                            "fieldSource": {
-                                "columnName": "column_name",
-                                "columnType": "String"
-                            }
-                        },
-                        "data_type": {
-                            "fieldSource": {
-                                "columnName": "data_type",
-                                "columnType": "String"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "kind": "graphqlType",
-            "typeName": "table",
-            "graphqlTypeName": "Table",
-            "graphqlTypeKind": "Object"
-        },
-        {
-            "kind": "graphqlType",
-            "typeName": "column",
-            "graphqlTypeName": "Column",
-            "graphqlTypeKind": "Object"
-        },
-        {
-            "kind": "graphqlType",
-            "typeName": "foreign_key",
-            "graphqlTypeName": "Foreign_Key",
-            "graphqlTypeKind": "Object"
-        },
-        {
-            "kind": "modelGraphqlApi",
-            "modelName": "Tables",
-            "selectUniques": [
-                {
-                    "queryRootField": "TableByID",
-                    "uniqueIdentifier": [
-                        "table_name",
-                        "table_schema"
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "modelGraphqlApi",
-            "modelName": "Columns",
-            "selectUniques": [
-                {
-                    "queryRootField": "ColumnByID",
-                    "uniqueIdentifier": [
-                        "table_name",
-                        "table_schema",
-                        "column_name"
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "model",
-            "name": "Foreign_Keys",
-            "dataType": "foreign_key"
-        },
-        {
-            "kind": "modelSource",
-            "modelName": "Foreign_Keys",
-            "dataSource": "pg_catalog_connector",
-            "modelSource": {
-                "tablePath": "foreign_keys"
+            "type": "table",
+            "deletable": false,
+            "uniqueness_constraints": {
+              "TableSchemaName": {
+                "unique_columns": ["table_schema", "table_name"]
+              }
             },
-            "typeSources": {
-                "foreign_key": {
-                    "fieldSources": {
-                        "schema_from": {
-                            "fieldSource": {
-                                "columnName": "schema_from",
-                                "columnType": "String"
-                            }
-                        },
-                        "table_from": {
-                            "fieldSource": {
-                                "columnName": "table_from",
-                                "columnType": "String"
-                            }
-                        },
-                        "column_mapping": {
-                            "fieldSource": {
-                                "columnName": "column_mapping",
-                                "columnType": "String"
-                            }
-                        },
-                        "schema_to": {
-                            "fieldSource": {
-                                "columnName": "schema_to",
-                                "columnType": "String"
-                            }
-                        },
-                        "table_to": {
-                            "fieldSource": {
-                                "columnName": "table_to",
-                                "columnType": "String"
-                            }
-                        },
-                        "fkey_name": {
-                            "fieldSource": {
-                                "columnName": "fkey_name",
-                                "columnType": "String"
-                            }
-                        },
-                        "on_delete": {
-                            "fieldSource": {
-                                "columnName": "on_delete",
-                                "columnType": "String"
-                            }
-                        },
-                        "on_update": {
-                            "fieldSource": {
-                                "columnName": "on_update",
-                                "columnType": "String"
-                            }
-                        }
-                    }
+            "foreign_keys": {}
+          },
+          {
+            "name": "columns",
+            "description": "A collection of Postgres columns",
+            "arguments": {
+              "database_url": {
+                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
+                "type": {
+                  "type": "named",
+                  "name": "database_url"
                 }
+              }
+            },
+            "type": "column",
+            "deletable": false,
+            "uniqueness_constraints": {
+              "ColumnName": {
+                "unique_columns": ["table_schema", "table_name", "column_name"]
+              }
+            },
+            "foreign_keys": {
+              "ColumnToTable": {
+                "column_mapping": {
+                  "table_name": "table_name",
+                  "table_schema": "table_schema"
+                },
+                "foreign_collection": "table"
+              }
             }
-        },
-        {
-            "kind": "modelGraphqlApi",
-            "modelName": "Foreign_Keys",
-            "selectUniques": [
-                {
-                    "queryRootField": "ForeignKeyByID",
-                    "uniqueIdentifier": [
-                        "fkey_name"
-                    ]
+          },
+          {
+            "name": "foreign_keys",
+            "description": "A collection of Postgres foreign keys",
+            "arguments": {
+              "database_url": {
+                "description": "The PG connection URI of the Postgres database that you wish to get entities from",
+                "type": {
+                  "type": "named",
+                  "name": "database_url"
                 }
-            ]
-        }
-    ],
-    "data_connectors": {
-        "postgres": "http://v3-super-connector:4000/deployment/"
+              }
+            },
+            "type": "foreign_key",
+            "deletable": false,
+            "uniqueness_constraints": {
+              "ForeignKeyName": {
+                "unique_columns": ["fkey_name"]
+              }
+            },
+            "foreign_keys": {}
+          }
+        ],
+        "functions": [],
+        "procedures": []
+      }
     },
-    "validate_connectors": false
+    {
+      "kind": "scalarTypeRepresentation",
+      "dataSource": "pg_catalog_connector",
+      "scalarType": "String",
+      "representation": "String"
+    },
+    {
+      "kind": "scalarTypeRepresentation",
+      "dataSource": "pg_catalog_connector",
+      "scalarType": "Int",
+      "representation": "Int"
+    },
+    {
+      "kind": "typeOutputPermissions",
+      "typeName": "table",
+      "outputPermissions": {
+        "admin": {
+          "fields": ["table_name", "table_schema"]
+        },
+        "user": {
+          "fields": ["table_name", "table_schema"]
+        }
+      }
+    },
+    {
+      "kind": "modelSelectPermissions",
+      "modelName": "Tables",
+      "selectPermissions": {
+        "admin": {},
+        "user": {}
+      }
+    },
+    {
+      "kind": "typeOutputPermissions",
+      "typeName": "column",
+      "outputPermissions": {
+        "admin": {
+          "fields": ["table_name", "table_schema", "column_name", "data_type"]
+        },
+        "user": {
+          "fields": ["table_name", "table_schema", "column_name", "data_type"]
+        }
+      }
+    },
+    {
+      "kind": "modelSelectPermissions",
+      "modelName": "Columns",
+      "selectPermissions": {
+        "admin": {},
+        "user": {}
+      }
+    },
+    {
+      "kind": "typeOutputPermissions",
+      "typeName": "foreign_key",
+      "outputPermissions": {
+        "admin": {
+          "fields": [
+            "schema_from",
+            "schema_to",
+            "table_from",
+            "table_to",
+            "column_mapping",
+            "fkey_name",
+            "on_delete",
+            "on_update"
+          ]
+        },
+        "user": {
+          "fields": [
+            "schema_from",
+            "schema_to",
+            "table_from",
+            "table_to",
+            "column_mapping",
+            "fkey_name",
+            "on_delete",
+            "on_update"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "modelSelectPermissions",
+      "modelName": "Foreign_Keys",
+      "selectPermissions": {
+        "admin": {},
+        "user": {}
+      }
+    },
+    {
+      "kind": "objectType",
+      "name": "table",
+      "fields": [
+        {
+          "name": "table_name",
+          "type": "String"
+        },
+        {
+          "name": "table_schema",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "kind": "objectType",
+      "name": "column",
+      "fields": [
+        {
+          "name": "table_name",
+          "type": "String"
+        },
+        {
+          "name": "table_schema",
+          "type": "String"
+        },
+        {
+          "name": "column_name",
+          "type": "String"
+        },
+        {
+          "name": "data_type",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "kind": "objectType",
+      "name": "foreign_key",
+      "fields": [
+        {
+          "name": "schema_from",
+          "type": "String"
+        },
+        {
+          "name": "schema_to",
+          "type": "String"
+        },
+        {
+          "name": "table_from",
+          "type": "String"
+        },
+        {
+          "name": "table_to",
+          "type": "String"
+        },
+        {
+          "name": "column_mapping",
+          "type": "String"
+        },
+        {
+          "name": "fkey_name",
+          "type": "String"
+        },
+        {
+          "name": "on_delete",
+          "type": "String"
+        },
+        {
+          "name": "on_update",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "kind": "model",
+      "name": "Tables",
+      "dataType": "table"
+    },
+    {
+      "kind": "model",
+      "name": "Columns",
+      "dataType": "column"
+    },
+    {
+      "kind": "modelSource",
+      "modelName": "Tables",
+      "dataSource": "pg_catalog_connector",
+      "table": "tables",
+      "typeMappings": {
+        "table": {
+          "fieldMappings": {
+            "table_schema": {
+              "column": "table_schema"
+            },
+            "table_name": {
+              "column": "table_name"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "modelSource",
+      "modelName": "Columns",
+      "dataSource": "pg_catalog_connector",
+      "table": "columns",
+      "typeMappings": {
+        "column": {
+          "fieldMappings": {
+            "table_schema": {
+              "column": "table_schema"
+            },
+            "table_name": {
+              "column": "table_name"
+            },
+            "column_name": {
+              "column": "column_name"
+            },
+            "data_type": {
+              "column": "data_type"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "graphqlType",
+      "typeName": "table",
+      "graphqlTypeName": "Table",
+      "graphqlTypeKind": "Object"
+    },
+    {
+      "kind": "graphqlType",
+      "typeName": "column",
+      "graphqlTypeName": "Column",
+      "graphqlTypeKind": "Object"
+    },
+    {
+      "kind": "graphqlType",
+      "typeName": "foreign_key",
+      "graphqlTypeName": "Foreign_Key",
+      "graphqlTypeKind": "Object"
+    },
+    {
+      "kind": "modelGraphqlApi",
+      "modelName": "Tables",
+      "selectUniques": [
+        {
+          "queryRootField": "TableByID",
+          "uniqueIdentifier": ["table_name", "table_schema"]
+        }
+      ],
+      "selectMany": {
+        "queryRootField": "Tables"
+      }
+    },
+    {
+      "kind": "modelGraphqlApi",
+      "modelName": "Columns",
+      "selectUniques": [
+        {
+          "queryRootField": "ColumnByID",
+          "uniqueIdentifier": ["table_name", "table_schema", "column_name"]
+        }
+      ],
+      "selectMany": {
+        "queryRootField": "Columns"
+      }
+    },
+    {
+      "kind": "model",
+      "name": "Foreign_Keys",
+      "dataType": "foreign_key"
+    },
+    {
+      "kind": "modelSource",
+      "modelName": "Foreign_Keys",
+      "dataSource": "pg_catalog_connector",
+      "table": "foreign_keys",
+      "typeMappings": {
+        "foreign_key": {
+          "fieldMappings": {
+            "schema_from": {
+              "column": "schema_from"
+            },
+            "table_from": {
+              "column": "table_from"
+            },
+            "column_mapping": {
+              "column": "column_mapping"
+            },
+            "schema_to": {
+              "column": "schema_to"
+            },
+            "table_to": {
+              "column": "table_to"
+            },
+            "fkey_name": {
+              "column": "fkey_name"
+            },
+            "on_delete": {
+              "column": "on_delete"
+            },
+            "on_update": {
+              "column": "on_update"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "modelGraphqlApi",
+      "modelName": "Foreign_Keys",
+      "selectUniques": [
+        {
+          "queryRootField": "ForeignKeyByID",
+          "uniqueIdentifier": ["fkey_name"]
+        }
+      ],
+      "selectMany": {
+        "queryRootField": "Foreign_Keys"
+      }
+    }
+  ],
+  "data_connectors": {
+    "postgres": "http://localhost:4000/deployment/"
+  }
 }
