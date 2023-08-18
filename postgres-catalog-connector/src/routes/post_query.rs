@@ -55,6 +55,7 @@ async fn resolve_query_request(request: &QueryRequest) -> Result<Json<QueryRespo
     // execute SQL, build response and return
     match sql_statement {
         Ok(statement) => {
+            println!("{}", statement);
             let result: PgRow = sqlx::query(statement.to_string().as_str())
                 .fetch_one(&pool)
                 .await?;
